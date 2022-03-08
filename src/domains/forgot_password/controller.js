@@ -1,6 +1,7 @@
 const sendEmail = require('../../util/sendEmail')
 const hashData = require('./../../util/hashData')
 const Org =require('./../org/model')
+const Voter =require('./../voter/model')
 const PasswordReset= require('./model')
 const {v4: uuidv4}= require('uuid')
 const verifyHashedData = require('./../../util/verifyHashedData')
@@ -96,7 +97,6 @@ const resetPassword = async ({uniqueId,resetString,newPassword})=>{
     }
 }
 //!Voter
-
 const sendVoterPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
     try{
         const resetString=uuidv4() + _id
@@ -132,7 +132,7 @@ const sendVoterPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
 
 const VoterRequestPasswordReset = async ({email,redirectUrl})=>{
     try{
-        const existingEmail = await Org.find({email})
+        const existingEmail = await Voter.find({email})
             if(existingEmail.length){      
                 //?User exist
                 //?Check If The Org Is Verifeied    
@@ -167,7 +167,7 @@ const VoterResetPassword = async ({uniqueId,resetString,newPassword})=>{
                     //?Hash the new password
                     const hashedNewPassword = await hashData(newPassword)
                     //?Update user password
-                    await Org.updateOne({_id : uniqueId},{password : hashedNewPassword})
+                    await Voter.updateOne({_id : uniqueId},{password : hashedNewPassword})
                     //?Update compeleted now delete reset record
                     await PasswordReset.deleteOne({uniqueId})
                     //?both user and reset record deleted

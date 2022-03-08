@@ -4,6 +4,7 @@ const {voteRoomRegisterValidation} = require('../../util/voteRoomValidation')
 const {createVoteRoom} = require('./controller')
 const verifyToken= require('./../../util/verifyToken')
 const authorizeOrg= require('./../../util/authorizeRole')
+const VoteRoom = require('./model')
 
 router.post('/createvoteroom',async(req,res)=>{
     try{
@@ -28,4 +29,21 @@ router.post('/createvoteroom',async(req,res)=>{
 })
 
 
+router.get('/voteroomslist',verifyToken,(req,res)=>{
+    VoteRoom.find((err,data)=>{
+        if(err){
+           console.log(err)
+        }else{
+            if(data.length){
+               res.json({
+                   data: data,
+               })
+            }else{
+               res.json({
+                   data: "no data",
+               })
+            }
+        }
+})
+})
 module.exports = router

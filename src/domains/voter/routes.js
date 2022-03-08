@@ -72,7 +72,9 @@ router.get('/voterlist',verifyToken,(req,res)=>{
                         data: data,
                     })
                  }else{
-                    console.log("no data")
+                    res.json({
+                        data: "no data",
+                    })
                  }
              }
     })
