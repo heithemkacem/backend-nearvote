@@ -1,10 +1,10 @@
 const mongoose= require('mongoose')
 const Schema = mongoose.Schema
-const VoterVerification=new Schema({
+const PasswordReset=new Schema({
     uniqueId:{
         type:String
     },
-    uniqueString:{
+    resetString:{
         type:String
     },
     createdAt:{
@@ -14,5 +14,5 @@ const VoterVerification=new Schema({
         type:Date
     },
 })
-const VoterVerificationModal = mongoose.model('voter_verification',VoterVerification)
-module.exports = VoterVerificationModal
+const PassReset = mongoose.model('voter_password_reset',PasswordReset )
+module.exports = PassReset

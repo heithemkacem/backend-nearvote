@@ -61,7 +61,7 @@ router.post('/votersignin',async (req,res)=>{
 })
 
 
-router.get('/voterlist',verifyToken,(req,res)=>{
+router.get('/voterlist',(req,res)=>{
     
     Voter.find((err,data)=>{
              if(err){

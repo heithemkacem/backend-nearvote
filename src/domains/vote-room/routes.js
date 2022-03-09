@@ -2,9 +2,12 @@ const express= require('express')
 const router = express.Router()
 const {voteRoomRegisterValidation} = require('../../util/voteRoomValidation')
 const {createVoteRoom} = require('./controller')
+const {sendVoterVerificationEmail} = require('./../voter_email_verification/controller')
 const verifyToken= require('./../../util/verifyToken')
 const authorizeOrg= require('./../../util/authorizeRole')
 const VoteRoom = require('./model')
+const Voter = require ('./../voter/model')
+
 
 router.post('/createvoteroom',async(req,res)=>{
     try{
@@ -29,7 +32,7 @@ router.post('/createvoteroom',async(req,res)=>{
 })
 
 
-router.get('/voteroomslist',verifyToken,(req,res)=>{
+router.get('/voteroomslist',(req,res)=>{
     VoteRoom.find((err,data)=>{
         if(err){
            console.log(err)
@@ -45,5 +48,28 @@ router.get('/voteroomslist',verifyToken,(req,res)=>{
             }
         }
 })
+})
+
+router.post('/sendvotersemail',async(req,res)=>{
+    let{id} = req.body
+    VoteRoom.findOne({id},(err,data)=>{
+             if(err){
+                console.log(err)
+             }else{
+               
+                data.voters.map((voter)=> 
+                Voter.findOne({voter},(error,voterData)=>{
+                    if(err){
+                        console.log(error)
+                     }else{
+                        sendVoterVerificationEmail(voterData,id)
+                        //todo get the voteroom id and send it to the voter
+                     }
+                   
+                })
+                
+                )
+             }
+    })
 })
 module.exports = router

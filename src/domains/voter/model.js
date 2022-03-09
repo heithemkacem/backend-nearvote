@@ -51,7 +51,11 @@ const VoterSignUpSchema=new Schema({
     },
     organization_id:{
         type :String
+    },
+    voteroom_id:{
+        type :String
     }
+
 })
 const Voter = mongoose.model('voter',VoterSignUpSchema)
 module.exports = Voter

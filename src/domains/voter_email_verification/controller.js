@@ -5,17 +5,18 @@ const verifyHashedData = require('./../../util/verifyHashedData')
 const sendEmail = require('./../../util/sendEmail')
 const {v4: uuidv4}= require('uuid')
 
-const sendVoterVerificationEmail = async ({_id,email})=>{
+const sendVoterVerificationEmail = async ({_id,email},id)=>{
     try{
     //url to be used in the email 
     const currentUrl= "http://localhost:5000/"
     const uniqueString= uuidv4() + _id
     const mailOptions={
         from : process.env.AUTH_EMAIL,
-        to:email,
+        to: email,
         subject:"Verify Your Email",
-        html:`<p>Verify your email adresse to login into your account </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ currentUrl +"email_verification/verify/" + _id + "/" + uniqueString}>HERE</a>to procced</p>`
+        html:`<p>Verify your email adresse to login into your account </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ currentUrl +"voter_email_verification/verify/" + _id + "/" + uniqueString}>HERE</a>to procced</p>`
     }
+    await Voter.updateOne({_id},{voteroom_id:id})
     //hash the unique string
     const hashedUniqueString= await hashData(uniqueString)
     //set values in userVerification collection
@@ -49,7 +50,7 @@ const verifyVoterEmail = async ({uniqueId,uniqueString})=>{
                 await VoterVerification.deleteOne({uniqueId})
                 await VoterVerification.deleteOne({_id:uniqueId})
                 let message="Link Has Expired,Please Signup Again"
-                return redirect(`/email_verification/verifiedvoter/error=true&message=${message}`)
+                return redirect(`/voter_email_verification/verified/error=true&message=${message}`)
             }else{
                 //!Valid record exist
                 //?Comparing the unique string
@@ -57,6 +58,7 @@ const verifyVoterEmail = async ({uniqueId,uniqueString})=>{
                 //todo Strings match
                 if(matchString){ 
                     await Voter.updateOne({_id:uniqueId},{verified:true})
+              
                     await VoterVerification.deleteOne({uniqueId})
                 }else{
                     throw Error("Invalid Verification Details Passed")

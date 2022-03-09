@@ -1,11 +1,12 @@
 const express= require('express')
 const router = express.Router()
-const {requestPasswordReset,resetPassword,VoterRequestPasswordReset,VoterResetPassword} = require('./controller')
-router.post('/requestpasswordreset',async (req,res)=>{
+const {VoterRequestPasswordReset,VoterResetPassword} = require('./controller')
+
+router.post('/voterrequestpasswordreset',async (req,res)=>{
     try{
         const {email,redirectUrl} = req.body
         if(!email) throw Error("Empty Credentials Are Not Allowed")
-        const emailData = await requestPasswordReset({email,redirectUrl})
+        const emailData = await VoterRequestPasswordReset({email,redirectUrl})
         res.json({
             status : "Pending",
             message: "Password Reset Email Sent",
@@ -21,10 +22,10 @@ router.post('/requestpasswordreset',async (req,res)=>{
 
 })
 //!Actually Reset The Passsword
-router.post("/resetpassword",async (req,res)=>{
+router.post("/voterresetpassword",async (req,res)=>{
     try{
     let {uniqueId,resetString,newPassword}=req.body
-    await resetPassword({uniqueId,resetString,newPassword})
+    await VoterResetPassword({uniqueId,resetString,newPassword})
     res.json({
                 status:'Success',
                 message:'Password has been reset '

@@ -5,7 +5,10 @@ const OrganizationRoutes = require('./../domains/org')
 const VoterRoutes = require('./../domains/voter')
 const EmailVerificationRoute = require('./../domains/email_verification')
 const ForgotPasswordRoute = require('./../domains/forgot_password')
+const VoterForgotPasswordRoute = require('./../domains/voter_forgot_password')
 const VoteRoom = require('./../domains/vote-room')
+const VoterEmailVerification = require('./../domains/voter_email_verification')
+
 
 
 
@@ -14,5 +17,8 @@ router.use("/voter",VoterRoutes)
 router.use("/voteroom",VoteRoom)
 router.use("/email_verification",EmailVerificationRoute)
 router.use("/forgot_passwords",ForgotPasswordRoute)
+router.use("/voter_forgot_passwords",VoterForgotPasswordRoute)
+router.use("/voter_email_verification",VoterEmailVerification)
+
 
 module.exports= router

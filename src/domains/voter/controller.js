@@ -54,6 +54,8 @@ const authenticateVoter = async ({email,password})=>{
                     console.log(passwordMatch)
                     return fetchedVoter
                 }else{
+                    console.log(passwordMatch)
+                    console.log(hashedPassword)
                     throw Error("Incorrect credentials match") 
                 }
             }

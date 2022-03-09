@@ -1,11 +1,11 @@
 const sendEmail = require('../../util/sendEmail')
 const hashData = require('./../../util/hashData')
+const Voter =require('./../voter/model')
 const PasswordReset= require('./model')
 const {v4: uuidv4}= require('uuid')
 const verifyHashedData = require('./../../util/verifyHashedData')
-
-//!Organization
-const sendPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
+//!Voter
+const sendVoterPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
     try{
         const resetString=uuidv4() + _id
         await PasswordReset.deleteMany({uniqueId:_id})
@@ -38,16 +38,16 @@ const sendPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
     }    
 }
 
-const requestPasswordReset = async ({email,redirectUrl})=>{
+const VoterRequestPasswordReset = async ({email,redirectUrl})=>{
     try{
-        const existingEmail = await Org.find({email})
+        const existingEmail = await Voter.find({email})
             if(existingEmail.length){      
                 //?User exist
                 //?Check If The Org Is Verifeied    
                 if(!existingEmail[0].verified){
-                    throw Error("The Organization Is Not Verified To Login")
+                    throw Error("The Voter Is Not Verified To Login")
                 }else{
-                    sendPasswordResetEmail(existingEmail[0],redirectUrl)
+                    sendVoterPasswordResetEmail(existingEmail[0],redirectUrl)
                 }
     
             }else{
@@ -58,7 +58,7 @@ const requestPasswordReset = async ({email,redirectUrl})=>{
         throw error
     }
 }
-const resetPassword = async ({uniqueId,resetString,newPassword})=>{
+const VoterResetPassword = async ({uniqueId,resetString,newPassword})=>{
     try{
     const existingRecord = await PasswordReset.find({uniqueId})
         if(existingRecord.length > 0){
@@ -75,12 +75,10 @@ const resetPassword = async ({uniqueId,resetString,newPassword})=>{
                     //?Hash the new password
                     const hashedNewPassword = await hashData(newPassword)
                     //?Update user password
-                    await Org.updateOne({_id : uniqueId},{password : hashedNewPassword})
+                    await Voter.updateOne({_id : uniqueId},{password : hashedNewPassword})
                     //?Update compeleted now delete reset record
                     await PasswordReset.deleteOne({uniqueId})
                     //?both user and reset record deleted
-                    
-                           
                 }else{
                 //?existing record but incorrect reset string record
                     throw Error("invalid password reset details passed ")
@@ -94,4 +92,4 @@ const resetPassword = async ({uniqueId,resetString,newPassword})=>{
         throw error
     }
 }
-module.exports = {requestPasswordReset,resetPassword}
+module.exports = {VoterRequestPasswordReset,VoterResetPassword}
