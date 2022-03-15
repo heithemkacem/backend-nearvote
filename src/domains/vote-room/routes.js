@@ -9,17 +9,17 @@ const VoteRoom = require('./model')
 const Voter = require ('./../voter/model')
 
 
-router.post('/createvoteroom',async(req,res)=>{
+router.post('/createvoteroom',verifyToken,async(req,res)=>{
     try{
-     
-        let {mainQuestion,organizationName,description,voters,startDate,endDate,ballotType,options} = req.body
+        let {organization_id} = req.user
+        let {roomName,roomDescription,voters} = req.body
         //Validate the Data with JOI
         const {error} = voteRoomRegisterValidation(req.body)
         if(error){
         res.status(400).send({message:error['details'][0]['message']})
         }
         else{
-            const createdVoteRoom = await createVoteRoom({mainQuestion,organizationName,description,voters,startDate,endDate,ballotType,options})
+            const createdVoteRoom = await createVoteRoom({roomName,roomDescription,voters},organization_id)
             res.json({
                 status:'Success',
                 message:'Vote Room added',
@@ -49,27 +49,57 @@ router.get('/voteroomslist',(req,res)=>{
         }
 })
 })
-
+router.get('/voteroomslist/:voterId',(req,res)=>{
+    const {voterId} = req.params
+    Voter.findById({_id:voterId},(err,data)=>{
+        if(err){
+            console.log(err)
+        }else{
+        if(data){
+        let array = [{}]
+        VoteRoom.find((err,data)=>{
+            if(err){
+            console.log(err)
+            }else{
+                if(data.length){
+                    data.map((voteroom)=>{
+                        voteroom.voters.map((voter)=>{
+                            if(voter === voterId){
+                                array.push(voteroom)
+                            }
+                        })
+                    })
+                res.json({
+                    data: array
+                })
+                
+                }
+                else{
+                res.json({
+                    data: "no data",
+                })
+                }
+            }
+    })
+    }else{
+            console.log("that voter id doeasnt exisit")
+    }
+}})})
 router.post('/sendvotersemail',async(req,res)=>{
     let{id} = req.body
     VoteRoom.findOne({id},(err,data)=>{
              if(err){
                 console.log(err)
              }else{
-               
                 data.voters.map((voter)=> 
-                Voter.findOne({voter},(error,voterData)=>{
-                    if(err){
-                        console.log(error)
-                     }else{
-                        sendVoterVerificationEmail(voterData,id)
-                        //todo get the voteroom id and send it to the voter
-                     }
-                   
-                })
-                
+                sendVoterVerificationEmail(voter)
                 )
              }
     })
+    res.json({
+        status: "Pending",
+        message: "Emails has been sent to the voters"
+    })
 })
+
 module.exports = router

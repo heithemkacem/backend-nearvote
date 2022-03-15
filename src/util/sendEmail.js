@@ -5,6 +5,7 @@ let transporter=nodemailer.createTransport({
         user:process.env.AUTH_EMAIL,
         pass:process.env.PASSWORD,
     }
+   
 })
 //testing success
 transporter.verify((error,success)=>{

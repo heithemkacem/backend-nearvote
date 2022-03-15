@@ -6,7 +6,7 @@ const voterRegisterValidation= (data)=>{
         firstName:joi.string().required().min(4).max(26),
         lastName:joi.string().required().min(4).max(26),
         email:joi.string().required().min(6).max(256).email(),
-        phone:joi.string().required().min(6).max(21),
+        phone:joi.number().required(),
     })
     return schemaValidation.validate(data)
 }

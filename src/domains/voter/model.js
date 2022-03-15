@@ -27,10 +27,8 @@ const VoterSignUpSchema=new Schema({
         max:256
     },
     phone:{
-        type:String,
+        type:Number,
         require:true,
-        min:6,
-        max:256
     },
     password:{
         type:String,
@@ -53,6 +51,9 @@ const VoterSignUpSchema=new Schema({
         type :String
     },
     voteroom_id:{
+        type :String
+    },
+    token:{
         type :String
     }
 

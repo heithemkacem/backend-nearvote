@@ -5,33 +5,44 @@ const verifyHashedData = require('./../../util/verifyHashedData')
 const sendEmail = require('./../../util/sendEmail')
 const {v4: uuidv4}= require('uuid')
 
-const sendVoterVerificationEmail = async ({_id,email},id)=>{
+const sendVoterVerificationEmail = async (id)=>{
     try{
     //url to be used in the email 
     const currentUrl= "http://localhost:5000/"
-    const uniqueString= uuidv4() + _id
-    const mailOptions={
-        from : process.env.AUTH_EMAIL,
-        to: email,
-        subject:"Verify Your Email",
-        html:`<p>Verify your email adresse to login into your account </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ currentUrl +"voter_email_verification/verify/" + _id + "/" + uniqueString}>HERE</a>to procced</p>`
-    }
-    await Voter.updateOne({_id},{voteroom_id:id})
-    //hash the unique string
-    const hashedUniqueString= await hashData(uniqueString)
-    //set values in userVerification collection
-    const VoterVerificationa= new VoterVerification({
-            uniqueId:_id,
-            uniqueString:hashedUniqueString,
-            createdAt:Date.now(),
-            expiresAt:Date.now()+ 86400000,
+   
+    Voter.findById(id,async (err,data) =>{
+        if(err){
+            console.log(err)
+        }else{
+            try{
+            const uniqueString= uuidv4() + data._id
+            const mailOptions={
+                from : process.env.AUTH_EMAIL,
+                to: data.email,
+                subject:"Verify Your Email",
+                html:`<p>Verify your email adresse to login into your account </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ currentUrl +"voter_email_verification/verify/" + data._id + "/" + uniqueString}>HERE</a>to procced</p>`
+            }
+            //hash the unique string
+            const hashedUniqueString= await hashData(uniqueString)
+            //set values in userVerification collection
+            const VoterVerificationa= new VoterVerification({
+                    uniqueId:data._id,
+                    uniqueString:hashedUniqueString,
+                    createdAt:Date.now(),
+                    expiresAt:Date.now()+ 86400000,
+            })
+            await VoterVerificationa.save()
+            await sendEmail(mailOptions)
+            return{
+                userId:data._id,
+                email:data.email,
+            }
+            }catch(err) {
+                console.log(err)
+            }
+        }
     })
-    await VoterVerificationa.save()
-    await sendEmail(mailOptions)
-    return{
-        userId:_id,
-        email:email,
-    }
+    
     }
     catch(error) {
         throw error
@@ -58,7 +69,6 @@ const verifyVoterEmail = async ({uniqueId,uniqueString})=>{
                 //todo Strings match
                 if(matchString){ 
                     await Voter.updateOne({_id:uniqueId},{verified:true})
-              
                     await VoterVerification.deleteOne({uniqueId})
                 }else{
                     throw Error("Invalid Verification Details Passed")

@@ -38,7 +38,6 @@ const sendVerificationEmail = async ({_id,email})=>{
 }
 const verifyEmail = async ({uniqueId,uniqueString})=>{
     try{
-    
         const existingRecord = await OrganizationVerification.find({uniqueId})
         if(existingRecord.length>0){
             //todo User Verification Record Exist So We Procced
