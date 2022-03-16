@@ -54,17 +54,14 @@ router.post('/votersignupfromexcel',verifyToken,async(req,res)=>{
             }else{
             const existingVoter = await Voter.find({email})
             if(existingVoter.length){
-            console.log("exist")
             handleError= [...handleError , "exist"]
             }else{
             await createVoter({username,firstName,lastName,email,phone},organization_id)
-            console.log("created")
             handleError= [...handleError , "created"]
             }
             }
             
         }
-        console.log(handleError)
         handleError.map((error)=>{
             console.log(error)
             if (error === "exist"){

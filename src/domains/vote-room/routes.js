@@ -88,13 +88,13 @@ router.get('/voteroomslist/:voterId',(req,res)=>{
 router.post('/sendvotersemail',async(req,res)=>{
     let{id} = req.body
     VoteRoom.findOne({id},(err,data)=>{
-             if(err){
+            if(err){
                 console.log(err)
-             }else{
-                data.voters.map((voter)=> 
-                sendVoterVerificationEmail(voter)
-                )
-             }
+            }else{
+                data.voters.map(voter=>(
+                    sendVoterVerificationEmail(voter)
+                ))
+            }
     })
     res.json({
         status: "Pending",
