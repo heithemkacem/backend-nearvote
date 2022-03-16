@@ -36,9 +36,16 @@ const VotePartySchema=new Schema({
     organization_id:{
         type :String
     },
+    voted_voters: {
+        type :Array
+    }, 
+    option_count:{
+        type:Array
+    },
     room_id:{
         type:String
-    }
+    },
+ 
 })
 const VoteParty = mongoose.model('voteparty',VotePartySchema)
 module.exports = VoteParty
