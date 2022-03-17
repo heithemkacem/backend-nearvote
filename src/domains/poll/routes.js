@@ -18,7 +18,6 @@ router.post('/createpoll',async(req,res)=>{
                     if(existingVoteRoom){
                         //? check if the room exist
                         existingVoteRoom.voters.map((voter)=>{
-                            
                             //! mapping the room voters to validate only the choosen voters
                             if(voter === voter_id){
                                 //! voter is verified to vote in the room
@@ -28,40 +27,19 @@ router.post('/createpoll',async(req,res)=>{
                                         //a request aleardy exist
                                             res.json({
                                                         status:'Failed',
-                                                        message:'Vote has been aleardy submited',
+                                                        message:'You have aleardy voted',
                                             }) 
                                     }else{
-                                        if(existingVoteParty.voted_voters.length !== 0){
-                                            existingVoteParty.voted_voters.map((voted_voter)=>{
-                                                //! mapping the voted voters to check if our voter has voted 
-                                                        if(voted_voter === voter){
-                                                            res.json({
-                                                                status: "Failed",
-                                                                message : "voter has aleardy voted"
-                                                            })
-                                                        }else{
-                                                            createVotePoll({voter_id,room_id,party_id})
-                                                            existingVoteParty.voted_voters = [...existingVoteParty.voted_voters ,voter ]
-                                                            existingVoteParty.option_count = [...existingVoteParty.option_count ,voter_option ]
-                                                            VoteParty.findByIdAndUpdate({_id : party_id},{voted_voters : existingVoteParty.voted_voters,option_count :existingVoteParty.option_count })
-                                                            res.json({                                                
-                                                                status:'Success',
-                                                                message:'Vote has been submited',
-                                                                data : existingVoteParty
-                                                            }) 
-                                                        }
-                                            })
-                                        }else{
-                                                createVotePoll({voter_id,room_id,party_id})
-                                                existingVoteParty.voted_voters = [...existingVoteParty.voted_voters ,voter ]
-                                                existingVoteParty.option_count = [...existingVoteParty.option_count ,voter_option ]
-                                                VoteParty.findByIdAndUpdate({_id : party_id},{voted_voters : existingVoteParty.voted_voters,option_count :existingVoteParty.option_count })
-                                                res.json({                                                
-                                                    status:'Success',
-                                                    message:'Vote has been submited',
-                                                    data : existingVoteParty
-                                                }) 
-                                        }
+                                    //! create the poll and update the party data
+                                        createVotePoll({voter_id,room_id,party_id})
+                                        existingVoteParty.voted_voters = [...existingVoteParty.voted_voters ,voter ]
+                                        existingVoteParty.option_count = [...existingVoteParty.option_count ,voter_option ]
+                                        VoteParty.findByIdAndUpdate({_id : party_id},{voted_voters : existingVoteParty.voted_voters,option_count :existingVoteParty.option_count })
+                                        res.json({                                                
+                                            status:'Success',
+                                            message:'Vote has been submited',
+                                            data : existingVoteParty
+                                        }) 
                                     }
                             }else{
                                 res.json({
@@ -75,12 +53,7 @@ router.post('/createpoll',async(req,res)=>{
                                     message : "voter is not allowed to vote in this room"
                                 })
                             }
-
-                            
                         })
-                            
-                            
-
                     }else{
                         res.json({
                             status:"Failed",
