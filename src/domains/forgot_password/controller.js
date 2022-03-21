@@ -1,6 +1,7 @@
 const sendEmail = require('../../util/sendEmail')
 const hashData = require('./../../util/hashData')
 const PasswordReset= require('./model')
+const Org= require('./../org/model')
 const {v4: uuidv4}= require('uuid')
 const verifyHashedData = require('./../../util/verifyHashedData')
 

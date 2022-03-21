@@ -1,4 +1,5 @@
 const VotePoll = require('./model')
+const VoteParty = require('./../vote_party/model')
 const createVotePoll = async ({voter_id,room_id,party_id})=>{
     try{
                 const newVotePoll= new VotePoll({
@@ -12,4 +13,7 @@ const createVotePoll = async ({voter_id,room_id,party_id})=>{
         throw error
     }
 }
-module.exports = {createVotePoll}
+const updateVoteParty = async (voters,count,party_id)=>{
+    await VoteParty.updateOne({_id : party_id},{voted_voters : voters , option_count : count })
+}
+module.exports = {createVotePoll,updateVoteParty}

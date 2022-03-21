@@ -156,7 +156,6 @@ router.post('/exportdata',verifyToken,(req,res)=>{
 
 router.get('/voter/:voterid',(req,res)=>{
     const {voterid} = req.params
-    console.log(voterid)
     Voter.findById(({_id:voterid}),(err,data)=>{
         if(err){
             console.log(err)
@@ -170,19 +169,25 @@ router.get('/voter/:voterid',(req,res)=>{
 router.put('/updatevoter/:voterid',async(req,res)=>{
             try{
             const {voterid} = req.params
-            const {username,firstName,lastName,phone} = req.body
-            let voter = Voter.findById({_id:voterid})
-            if(!voter){
+            const values = req.body
+            console.log(values)
+            console.log(voterid)
+
+            const existingVoter = await Voter.findById({_id:voterid})
+            if(existingVoter){
+                await Voter.updateOne({_id:voterid},req.body)
+            }else{
                 res.json({
                     status:"Failed",
                     message :"Voter Doesnt Exist"
                 })
-            }else{
-               Voter.findByIdAndUpdate(voterid,{username : username},{firstName : firstName},{lastName : lastName},{phone : phone}) 
-                res.json({
-                    voter:"updated"
-                })
             }
+            res.json({
+                status:"Success",
+                message :"Voter has been updated",
+                data2 : existingVoter
+            })  
+         
             }catch(err) {
                 throw (err)
         

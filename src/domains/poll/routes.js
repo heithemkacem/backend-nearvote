@@ -1,6 +1,6 @@
 const express= require('express')
 const router = express.Router()
-const {createVotePoll} = require('./controller')
+const {createVotePoll, updateVoteParty} = require('./controller')
 const VotePoll = require('./model')
 const Voter = require('./../voter/model')
 const VoteRoom = require('./../vote-room/model')
@@ -11,8 +11,9 @@ router.post('/createpoll',async(req,res)=>{
             const existingVoter = await Voter.findById({_id:voter_id})
             const existingVoteRoom = await VoteRoom.findById({_id:room_id})
             const existingVoteParty = await VoteParty.findById({_id:party_id})
-            const existingPoll =await VotePoll.findOne({voter_id : voter_id} && {room_id : room_id} && {party_id : party_id})
-           
+            const existingPoll =await VotePoll.findOne({voter_id : voter_id ,room_id : room_id,party_id : party_id} )
+            let count = existingVoteParty.option_count
+            let voters = existingVoteParty.voted_voters
                 if(existingVoter){
                     //? check if the voter exist
                     if(existingVoteRoom){
@@ -32,13 +33,12 @@ router.post('/createpoll',async(req,res)=>{
                                     }else{
                                     //! create the poll and update the party data
                                         createVotePoll({voter_id,room_id,party_id})
-                                        existingVoteParty.voted_voters = [...existingVoteParty.voted_voters ,voter ]
-                                        existingVoteParty.option_count = [...existingVoteParty.option_count ,voter_option ]
-                                        VoteParty.findByIdAndUpdate({_id : party_id},{voted_voters : existingVoteParty.voted_voters,option_count :existingVoteParty.option_count })
+                                        voters = [...voters ,voter ]
+                                        count = [...count ,voter_option ]
+                                        updateVoteParty(voters,count,party_id)
                                         res.json({                                                
                                             status:'Success',
                                             message:'Vote has been submited',
-                                            data : existingVoteParty
                                         }) 
                                     }
                             }else{
@@ -48,10 +48,7 @@ router.post('/createpoll',async(req,res)=>{
                                 })
                             }
                             }else{
-                                res.json({
-                                    status : "Failed",
-                                    message : "voter is not allowed to vote in this room"
-                                })
+                                console.log("is not allowed")
                             }
                         })
                     }else{
