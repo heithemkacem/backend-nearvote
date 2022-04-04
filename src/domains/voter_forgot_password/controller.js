@@ -5,8 +5,10 @@ const PasswordReset= require('./model')
 const {v4: uuidv4}= require('uuid')
 const verifyHashedData = require('./../../util/verifyHashedData')
 //!Voter
-const sendVoterPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
+const sendVoterPasswordResetEmail = async ({_id,email}) => {
     try{
+        const redirectUrl = "http://localhost:3000/voter-passwordreset/"
+
         const resetString=uuidv4() + _id
         await PasswordReset.deleteMany({uniqueId:_id})
         //reset record deleted succesfuly
@@ -15,7 +17,7 @@ const sendVoterPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
                 from : process.env.AUTH_EMAIL,
                 to:email,
                 subject:"Password Reset",
-                html:`<p>lost your password ? use this link to reset </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ redirectUrl +"/" + _id + "/" + resetString}>HERE</a>to procced</p>`
+                html:`<p>lost your password ? use this link to reset </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ redirectUrl + _id + "/" + resetString}>HERE</a>to procced</p>`
         }
             //hash the reset string
         const hashedResetString = await hashData(resetString)
@@ -38,7 +40,7 @@ const sendVoterPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
     }    
 }
 
-const VoterRequestPasswordReset = async ({email,redirectUrl})=>{
+const VoterRequestPasswordReset = async ({email})=>{
     try{
         const existingEmail = await Voter.find({email})
             if(existingEmail.length){      
@@ -47,7 +49,7 @@ const VoterRequestPasswordReset = async ({email,redirectUrl})=>{
                 if(!existingEmail[0].verified){
                     throw Error("The Voter Is Not Verified To Login")
                 }else{
-                    sendVoterPasswordResetEmail(existingEmail[0],redirectUrl)
+                    sendVoterPasswordResetEmail(existingEmail[0])
                 }
     
             }else{

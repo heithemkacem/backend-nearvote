@@ -1,6 +1,6 @@
 const express= require('express')
 const router = express.Router()
-const {requestPasswordReset,resetPassword,VoterRequestPasswordReset,VoterResetPassword} = require('./controller')
+const {requestPasswordReset,resetPassword} = require('./controller')
 router.post('/requestpasswordreset',async (req,res)=>{
     try{
         const {email,redirectUrl} = req.body

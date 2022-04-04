@@ -6,8 +6,9 @@ const {v4: uuidv4}= require('uuid')
 const verifyHashedData = require('./../../util/verifyHashedData')
 
 //!Organization
-const sendPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
+const sendPasswordResetEmail = async ({_id,email}) => {
     try{
+        const redirectUrl = "http://localhost:3000/passwordreset/"
         const resetString=uuidv4() + _id
         await PasswordReset.deleteMany({uniqueId:_id})
         //reset record deleted succesfuly
@@ -39,7 +40,7 @@ const sendPasswordResetEmail = async ({_id,email},redirectUrl,res) => {
     }    
 }
 
-const requestPasswordReset = async ({email,redirectUrl})=>{
+const requestPasswordReset = async ({email})=>{
     try{
         const existingEmail = await Org.find({email})
             if(existingEmail.length){      
@@ -48,7 +49,7 @@ const requestPasswordReset = async ({email,redirectUrl})=>{
                 if(!existingEmail[0].verified){
                     throw Error("The Organization Is Not Verified To Login")
                 }else{
-                    sendPasswordResetEmail(existingEmail[0],redirectUrl)
+                    sendPasswordResetEmail(existingEmail[0])
                 }
     
             }else{

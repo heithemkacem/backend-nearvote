@@ -6,7 +6,7 @@ router.post('/voterrequestpasswordreset',async (req,res)=>{
     try{
         const {email,redirectUrl} = req.body
         if(!email) throw Error("Empty Credentials Are Not Allowed")
-        const emailData = await VoterRequestPasswordReset({email,redirectUrl})
+        const emailData = await VoterRequestPasswordReset({email})
         res.json({
             status : "Pending",
             message: "Password Reset Email Sent",

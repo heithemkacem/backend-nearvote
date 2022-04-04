@@ -1,7 +1,9 @@
 const express= require('express')
 const {registerValidation,loginValidation} = require('../../util/orgValidation')
+const verifyToken = require('../../util/verifyToken')
 const {sendVerificationEmail} = require('./../email_verification/controller')
 const {createOrganization,authenticateOrg} = require('./controller')
+const Org = require('./model')
 const router = express.Router()
 
 //!Sign Up
@@ -64,4 +66,18 @@ router.post('/signin',async (req,res)=>{
         })  
     }
 })
+
+router.get('/currentorg',verifyToken,(req,res)=>{
+    const {organization_id} = req.user
+    Org.findById(organization_id,(err,data)=>{
+             if(err){
+                console.log(err)
+             }else{
+                    res.json({
+                        data: data,
+                    })
+             }
+    })
+})
+
 module.exports = router

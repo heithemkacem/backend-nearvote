@@ -6,6 +6,7 @@ const {createVoter,authenticateVoter,deleteVoter} = require('./controller')
 const verifyToken= require('./../../util/verifyToken')
 const authorizeOrg= require('./../../util/authorizeRole')
 let handleError = []
+let handleDelete = []
 //!SignUp
 
 router.post('/votersignup',verifyToken,async(req,res)=>{
@@ -48,19 +49,17 @@ router.post('/votersignupfromexcel',verifyToken,async(req,res)=>{
         //Validate the Data with JOI
         for (let i=0;i<fileData.length;i++){
             const {username,firstName,lastName,email,phone} = fileData[i]
-            const {error} = voterRegisterValidation(fileData[i])
-            if(error){
-            res.status(400).send({message:error['details'][0]['message']})
+            if(Object.values(fileData[i]).length  < 5){
+                handleError= [...handleError , "error"]
             }else{
-            const existingVoter = await Voter.find({email})
-            if(existingVoter.length){
-            handleError= [...handleError , "exist"]
-            }else{
-            await createVoter({username,firstName,lastName,email,phone},organization_id)
-            handleError= [...handleError , "created"]
+                const existingVoter = await Voter.find({email})
+                if(existingVoter.length){
+                    handleError= [...handleError , "exist"]
+                }else{
+                    await createVoter({username,firstName,lastName,email,phone},organization_id)
+                    handleError= [...handleError , "created"]
+                }
             }
-            }
-            
         }
         handleError.map((error)=>{
             console.log(error)
@@ -68,6 +67,8 @@ router.post('/votersignupfromexcel',verifyToken,async(req,res)=>{
                 res.write("a voter aleardy exist/")
             }else if(error === "created"){
                 res.write("voter has been added/")
+            }else if(error === "error"){
+                res.write("check your excel file/")
             }
         })
         res.end()
@@ -169,44 +170,46 @@ router.get('/voter/:voterid',(req,res)=>{
 router.put('/updatevoter/:voterid',async(req,res)=>{
             try{
             const {voterid} = req.params
-            const values = req.body
-            console.log(values)
-            console.log(voterid)
-
             const existingVoter = await Voter.findById({_id:voterid})
             if(existingVoter){
                 await Voter.updateOne({_id:voterid},req.body)
+                res.json({
+                    status:"Success",
+                    message :"Voter has been updated",
+                    data2 : existingVoter
+                })  
             }else{
                 res.json({
                     status:"Failed",
                     message :"Voter Doesnt Exist"
                 })
             }
-            res.json({
-                status:"Success",
-                message :"Voter has been updated",
-                data2 : existingVoter
-            })  
+            
          
             }catch(err) {
                 throw (err)
         
             }
            
-        })
-router.delete('/deletevoter',verifyToken,async(req,res)=>{
-    let{id} = req.body
-    Voter.findOneAndDelete({id},(err)=>{
-             if(err){
-                console.log(err)
-             }else{
-                res.json({
-                    status:'Success',
-                    message:'Voter has been deleted ',
-                })  
-             }
-    })
 })
+router.delete('/deletevoter',async(req,res)=>{
+            const {id} = req.body
+            id.map((voter)=>{
+                Voter.findOneAndDelete({voter},(err)=>{
+                    if(err){
+                       console.log(err)
+                    }else{
+                        handleDelete= [...handleDelete , "deleted"]
+                    }
+                 })  
+            })
+            handleDelete.map((error)=>{
+                res.write("Voter has been deleted/")  
+            })
+            res.end()
+            handleDelete = []
+        })
+        
 
 
 

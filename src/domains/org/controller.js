@@ -52,7 +52,6 @@ const authenticateOrg = async (email,password)=>{
                 const passwordMatch = await verifyHashedData(password,hashedPassword)
                 if(passwordMatch === hashedPassword ){
                     //password match
-                    console.log(passwordMatch)
                     const token = jwt.sign({ organization_id: fetchedOrgs._id ,email,role: fetchedOrgs.role }, process.env.TOKEN_SECRET,{expiresIn: "2h",}); 
                     fetchedOrgs.token =token
                     return fetchedOrgs

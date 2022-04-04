@@ -12,11 +12,11 @@ const createVoter = async ({username,firstName,lastName,email,phone},organizatio
         //?Password hashing
         const hashedPassword = await hashData(RandomPassword)
         const newVoter= new Voter({
-                username,
-                firstName,
-                lastName,
-                email,
-                phone,
+                username : username,
+                firstName: firstName,
+                lastName : lastName,
+                email : email,
+                phone : phone,
                 password:hashedPassword,
                 verified:false,
                 role:Role.Voter,

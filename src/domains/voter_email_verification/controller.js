@@ -20,7 +20,7 @@ const sendVoterVerificationEmail = async (id)=>{
                 from : process.env.AUTH_EMAIL,
                 to: data.email,
                 subject:"Verify Your Email",
-                html:`<p>Verify your email adresse to login into your account </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ currentUrl +"voter_email_verification/verify/" + data._id + "/" + uniqueString}>HERE</a>to procced</p>`
+                html:`<p>Verify your email adresse to login into your account </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${currentUrl+"voter_email_verification/verify/" + data._id + "/" + uniqueString}>HERE</a>to procced</p>`
             }
             //hash the unique string
             const hashedUniqueString= await hashData(uniqueString)

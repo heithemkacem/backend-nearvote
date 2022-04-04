@@ -56,7 +56,7 @@ router.get('/voteroomslist/:voterId',(req,res)=>{
             console.log(err)
         }else{
         if(data){
-        let array = [{}]
+        let array = []
         VoteRoom.find((err,data)=>{
             if(err){
             console.log(err)
@@ -102,4 +102,29 @@ router.post('/sendvotersemail',async(req,res)=>{
     })
 })
 
+router.put('/update-vote-room/:voteroomid',async(req,res)=>{
+    try{
+    const {voteroomid} = req.params
+    const values = req.body
+
+    const existingVoteRoom = await VoteRoom.findById(voteroomid)
+    if(existingVoteRoom){
+        await VoteRoom.updateOne({_id:voteroomid},values)
+        res.json({
+            status:"Success",
+            message :"Vote Room has been updated",
+            data2 : existingVoteRoom
+        })  
+    }else{
+        res.json({
+            status:"Failed",
+            message :"Vote Room Doesnt Exist"
+        })
+    }
+    }catch(err) {
+        throw (err)
+
+    }
+   
+})
 module.exports = router
