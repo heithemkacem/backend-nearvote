@@ -8,7 +8,6 @@ const verifyHashedData = require('./../../util/verifyHashedData')
 const sendVoterPasswordResetEmail = async ({_id,email}) => {
     try{
         const redirectUrl = "http://localhost:3000/voter-passwordreset/"
-
         const resetString=uuidv4() + _id
         await PasswordReset.deleteMany({uniqueId:_id})
         //reset record deleted succesfuly

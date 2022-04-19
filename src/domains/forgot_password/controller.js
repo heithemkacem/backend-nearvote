@@ -17,7 +17,7 @@ const sendPasswordResetEmail = async ({_id,email}) => {
                 from : process.env.AUTH_EMAIL,
                 to:email,
                 subject:"Password Reset",
-                html:`<p>lost your password ? use this link to reset </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ redirectUrl +"/" + _id + "/" + resetString}>HERE</a>to procced</p>`
+                html:`<p>lost your password ? use this link to reset </p> <p>this link <b> expiresin 24 hours</b> </p><p>Press <a href=${ redirectUrl + _id + "/" + resetString}>HERE</a>to procced</p>`
         }
             //hash the reset string
         const hashedResetString = await hashData(resetString)

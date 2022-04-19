@@ -30,6 +30,10 @@ const VotePartySchema=new Schema({
         type:Date,
         default:Date.now
     },
+    showResult:{
+        type:Boolean,
+        default:false
+    },
     options: {
         type :Array
     },

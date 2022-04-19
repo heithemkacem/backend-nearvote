@@ -4,6 +4,7 @@ const verifyToken = require('../../util/verifyToken')
 const {sendVerificationEmail} = require('./../email_verification/controller')
 const {createOrganization,authenticateOrg} = require('./controller')
 const Org = require('./model')
+const hashData = require('./../../util/hashData')
 const router = express.Router()
 
 //!Sign Up
@@ -80,4 +81,32 @@ router.get('/currentorg',verifyToken,(req,res)=>{
     })
 })
 
+router.put('/updateorg/:orgid',async(req,res)=>{
+    try{
+    const {orgid} = req.params
+    const {password , orgDescription , orgName} = req.body
+    const hashedPassword = await hashData(password)
+    const existingOrg = await Org.findById({_id:orgid})
+    if(existingOrg){
+        await Org.updateOne({_id:orgid},{orgName : orgName})
+        await Org.updateOne({_id:orgid},{orgDescription : orgDescription})
+        await Org.updateOne({_id:orgid},{orgName : orgName})
+        await Org.updateOne({_id:orgid},{password : hashedPassword})
+        res.json({
+            status:"Success",
+            message :"Org has been updated",
+            data2 : existingOrg
+        })  
+    }else{
+        res.json({
+            status:"Failed",
+            message :"Org Doesnt Exist"
+        })
+    }
+    }catch(err) {
+        throw (err)
+
+    }
+   
+})
 module.exports = router

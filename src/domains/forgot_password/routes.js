@@ -3,9 +3,9 @@ const router = express.Router()
 const {requestPasswordReset,resetPassword} = require('./controller')
 router.post('/requestpasswordreset',async (req,res)=>{
     try{
-        const {email,redirectUrl} = req.body
+        const {email} = req.body
         if(!email) throw Error("Empty Credentials Are Not Allowed")
-        const emailData = await requestPasswordReset({email,redirectUrl})
+        const emailData = await requestPasswordReset({email})
         res.json({
             status : "Pending",
             message: "Password Reset Email Sent",
