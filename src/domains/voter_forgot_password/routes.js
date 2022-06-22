@@ -21,7 +21,7 @@ router.post('/voterrequestpasswordreset',async (req,res)=>{
     }
 
 })
-//!Actually Reset The Passsword
+//!Actually reset the Passsword
 router.post("/voterresetpassword",async (req,res)=>{
     try{
     let {uniqueId,resetString,newPassword}=req.body
@@ -32,7 +32,10 @@ router.post("/voterresetpassword",async (req,res)=>{
     })
     }
     catch(error){
-        console.log(error)
+        res.json({
+            status:'Failed',
+            message:error.message
+        }) 
     }
    
 })

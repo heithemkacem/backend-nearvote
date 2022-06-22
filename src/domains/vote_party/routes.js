@@ -2,25 +2,23 @@ const express= require('express')
 const router = express.Router()
 const {votePartyRegisterValidation} = require('../../util/voteRoomValidation')
 const {createVoteParty} = require('./controller')
-const verifyToken= require('./../../util/verifyToken')
-const authorizeOrg= require('./../../util/authorizeRole')
 const VoteRoom = require('./../vote-room/model')
 const Voter = require('./../voter/model')
 const VoteParty = require('./model')
 let votePartys = []
 router.post('/addvoteparty',async(req,res)=>{
     try{
-        let {mainQuestion,startDate,endDate,ballotType,options,VoteRoomId} = req.body
+        let {mainQuestion,startDate,endDate,option1,option2,VoteRoomId} = req.body
         //Validate the Data with JOI
         const {error} = votePartyRegisterValidation(req.body)
         if(error){
-        res.status(400).send({message:error['details'][0]['message']})
+        res.send({status:"Failed",message:error['details'][0]['message']})
         }
         else{
-            const createdVoteParty = await createVoteParty({mainQuestion,startDate,endDate,ballotType,options,VoteRoomId})
+            const createdVoteParty = await createVoteParty({mainQuestion,startDate,endDate,option1,option2,VoteRoomId})
             res.json({
                 status:'Success',
-                message:'Vote Party added',
+                message:'VoteParty added',
                 data:createdVoteParty,
             })
         }
@@ -62,7 +60,6 @@ router.get('/roompartys/:voterId/:roomId',async(req,res)=>{
                                 })
                                 votePartys = []
                             })
-                        
                     }
                 })
             }
@@ -101,7 +98,10 @@ router.get('/roompartys/:roomId',async(req,res)=>{
             }
         })
     }catch(error){
-        throw error
+        res.json({
+            status:'Failed',
+            message:error.message
+        })  
     }
 })
 router.get('/voterparty/:voterId/:roomId/:partyId',async(req,res)=>{
@@ -129,14 +129,17 @@ router.get('/voterparty/:voterId/:roomId/:partyId',async(req,res)=>{
             }
         })
     }catch(error){
-        throw error
+        res.json({
+            status:'Failed',
+            message:error.message
+        })  
     }
 })
 
 router.get('/voterparty/:partyId',async(req,res)=>{
     try{
-        let {partyId} = req.params
-        //Validate the Data with JOI
+            let {partyId} = req.params
+            //Validate the Data with JOI
             VoteParty.findOne( {_id : partyId}, (err,partyData)=>{
             if(err){
                     console.log(err)
@@ -144,31 +147,11 @@ router.get('/voterparty/:partyId',async(req,res)=>{
                     res.send(partyData)
             }})
     }catch(error){
-        throw error
-    }
-})
-
-router.put('/updateshowresult/:partyid',async(req,res)=>{
-    try{
-    const {partyid} = req.params
-
-    const existingVoteParty = await VoteParty.findById(partyid)
-    if(existingVoteParty){
-        await VoteParty.updateOne({_id:partyid},{showResult : true})
         res.json({
-            status:"Success",
-            message :"Vote Party Result Deployed",
+            status:'Failed',
+            message:error.message
         })  
-    }else{
-        res.json({
-            status:"Failed",
-            message :"Vote Room Doesnt Exist"
-        })
     }
-    }catch(err) {
-        throw (err)
-
-    }
-   
 })
+
 module.exports = router

@@ -4,11 +4,11 @@ const {requestPasswordReset,resetPassword} = require('./controller')
 router.post('/requestpasswordreset',async (req,res)=>{
     try{
         const {email} = req.body
-        if(!email) throw Error("Empty Credentials Are Not Allowed")
+        if(!email) throw Error("Empty credentials are not allowed")
         const emailData = await requestPasswordReset({email})
         res.json({
             status : "Pending",
-            message: "Password Reset Email Sent",
+            message: "Password reset email sent",
             data:emailData
         })
     }
@@ -31,7 +31,10 @@ router.post("/resetpassword",async (req,res)=>{
     })
     }
     catch(error){
-        console.log(error)
+        res.json({
+            status:'Failed',
+            message:error.message
+        })  
     }
    
 })

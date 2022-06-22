@@ -13,8 +13,8 @@ const votePartyRegisterValidation= (data)=>{
         mainQuestion:joi.string().required().min(4).max(1024),
         startDate:joi.date().required(),
         endDate:joi.date().required(),
-        ballotType:joi.string().required(),
-        options:joi.array().required(),
+        option1:joi.string().required(),
+        option2:joi.string().required(),
         VoteRoomId:joi.string()
     })
     return schemaValidation.validate(data)

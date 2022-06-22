@@ -1,7 +1,6 @@
 const mongoose= require('mongoose')
 const Schema = mongoose.Schema
 const VoterSignUpSchema=new Schema({
- 
     username:{
         type:String,
         require:true,

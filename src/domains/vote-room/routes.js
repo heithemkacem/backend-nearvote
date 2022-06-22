@@ -16,55 +16,88 @@ router.post('/createvoteroom',verifyToken,async(req,res)=>{
         //Validate the Data with JOI
         const {error} = voteRoomRegisterValidation(req.body)
         if(error){
-        res.status(400).send({message:error['details'][0]['message']})
+        res.send({status:"Failed",message:error['details'][0]['message']})
         }
         else{
             const createdVoteRoom = await createVoteRoom({roomName,roomDescription,voters},organization_id)
             res.json({
                 status:'Success',
-                message:'Vote Room added',
+                message:'VoteRoom added',
                 data:createdVoteRoom,
             })
         }
     }catch(error){
-        throw error
+        res.json({
+            status:'Failed',
+            message:error.message
+        })  
     }
 })
-
-
-router.get('/voteroomslist',(req,res)=>{
-    VoteRoom.find((err,data)=>{
-        if(err){
-           console.log(err)
+router.get('/voterooms/:voterId',(req,res)=>{
+    const {voterId} = req.params
+    Voter.findById({_id:voterId},(error,data)=>{
+        if(error){
+            console.log(error)
         }else{
-            if(data.length){
-               res.json({
-                   data: data,
-               })
+        if(data){
+        VoteRoom.find((error,data)=>{
+            if(error){
+            console.log(error)
             }else{
-               res.json({
-                   data: "no data",
-               })
+                if(data.length){
+                res.json({
+                    data: data
+                })}else{
+                res.json({
+                    data: "no data",
+                })
+                }
             }
+        })
+        }else{
+            res.json({
+                status:'Failed',
+                message:"That voter id doeasnt exisit"
+            })  
         }
+}})})
+
+router.get('/voteroomslist',verifyToken,(req,res)=>{
+    let {organization_id} = req.user
+    VoteRoom.find(({organization_id:organization_id}),(error,data)=>{
+        if(error){
+            console.log(error)
+         }else{
+             if(data.length){
+                res.json({
+                    data: data,
+                })
+             }else{
+                res.json({
+                    data: "no data",
+                })
+             }
+         }
+    })
+
 })
-})
+
 router.get('/voteroomslist/:voterId',(req,res)=>{
     const {voterId} = req.params
-    Voter.findById({_id:voterId},(err,data)=>{
-        if(err){
-            console.log(err)
+    Voter.findById({_id:voterId},(error,data)=>{
+        if(error){
+            console.log(error)
         }else{
         if(data){
         let array = []
-        VoteRoom.find((err,data)=>{
-            if(err){
-            console.log(err)
+        VoteRoom.find((error,roomdata)=>{
+            if(error){
+            console.log(error)
             }else{
-                if(data.length){
-                    data.map((voteroom)=>{
+                if(roomdata.length){
+                    roomdata.map((voteroom)=>{
                         voteroom.voters.map((voter)=>{
-                            if(voter === voterId){
+                            if(voter === data.email){
                                 array.push(voteroom)
                             }
                         })
@@ -82,14 +115,17 @@ router.get('/voteroomslist/:voterId',(req,res)=>{
             }
     })
     }else{
-            console.log("that voter id doeasnt exisit")
+        res.json({
+            status:'Failed',
+            message:"That voter id doeasnt exisit"
+        })  
     }
 }})})
 router.post('/sendvotersemail',async(req,res)=>{
     let{id} = req.body
-    VoteRoom.findOne({id},(err,data)=>{
-            if(err){
-                console.log(err)
+    VoteRoom.findOne({id},(error,data)=>{
+            if(error){
+                console.log(error)
             }else{
                 data.voters.map(voter=>(
                     sendVoterVerificationEmail(voter)
@@ -112,17 +148,20 @@ router.put('/update-vote-room/:voteroomid',async(req,res)=>{
         await VoteRoom.updateOne({_id:voteroomid},values)
         res.json({
             status:"Success",
-            message :"Vote Room has been updated",
+            message :"VoteRoom has been updated",
             data2 : existingVoteRoom
         })  
     }else{
         res.json({
             status:"Failed",
-            message :"Vote Room Doesnt Exist"
+            message :"VoteRoom doesnt exist"
         })
     }
-    }catch(err) {
-        throw (err)
+    }catch(error) {
+        res.json({
+            status:'Failed',
+            message:error.message
+        }) 
 
     }
    

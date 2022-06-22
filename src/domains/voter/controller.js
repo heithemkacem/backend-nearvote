@@ -23,7 +23,7 @@ const createVoter = async ({username,firstName,lastName,email,phone},organizatio
                 organization_id:organization_id
                
         })
-        const token = jwt.sign({ voter_id: newVoter._id ,email,role: newVoter.role }, process.env.TOKEN_SECRET,{expiresIn: "2h",})
+        const token = jwt.sign({ voter_id: newVoter._id ,email,role: newVoter.role }, process.env.TOKEN_SECRET,{expiresIn: "1y",})
         newVoter.token = token
         const createdVoter = await newVoter.save()
         return createdVoter
@@ -44,7 +44,7 @@ const authenticateVoter = async ({email,password})=>{
                 const passwordMatch =await verifyHashedData(password,hashedPassword)
                 if(passwordMatch === hashedPassword){
                     //password match
-                    const token = jwt.sign({ voter_id: fetchedVoter._id ,email,role: fetchedVoter.role }, process.env.TOKEN_SECRET,{expiresIn: "2h",})
+                    const token = jwt.sign({ voter_id: fetchedVoter._id ,email,role: fetchedVoter.role }, process.env.TOKEN_SECRET,{expiresIn: "1y",})
                     fetchedVoter.token = token
                     return fetchedVoter
                 }else{

@@ -19,6 +19,10 @@ const organizationSchema=new Schema({
         min:6,
         max:256
     },
+    phone:{
+        type:String,
+        require:true,
+    },
     password:{
         type:String,
         require:true,
@@ -32,8 +36,6 @@ const organizationSchema=new Schema({
     },
     verified:{
         type:Boolean,
-        
-
     },
     role: {
         type :String

@@ -5,12 +5,11 @@ const {voterRegisterValidation,voterLoginValidation} = require('../../util/voter
 const {createVoter,authenticateVoter,deleteVoter} = require('./controller')
 const verifyToken= require('./../../util/verifyToken')
 const authorizeOrg= require('./../../util/authorizeRole')
-let handleError = []
-let handleDelete = []
+let handleDelete=[]
+let handleerror=[]
+
 //!SignUp
-
 router.post('/votersignup',verifyToken,async(req,res)=>{
-
     try{
         let {organization_id} = req.user
         let {username,firstName,lastName,email,phone} = req.body
@@ -18,64 +17,103 @@ router.post('/votersignup',verifyToken,async(req,res)=>{
         //Validate the Data with JOI
         const {error} = voterRegisterValidation(req.body)
         if(error){
-        res.status(400).send({message:error['details'][0]['message']})
+        res.send({status:"Failed",message:error['details'][0]['message']})
         }
         else{
+           
             const existingVoter = await Voter.find({email})
-            if(existingVoter.length){
-            res.json({
-                status : "Failed",
-                message : "a voter aleardu exist"
-            })
-            }else{
-            const createdVoter = await createVoter({username,firstName,lastName,email,phone},organization_id)
-            res.json({
-                status:'Success',
-                message:'Voter added',
-                data:createdVoter,
-            })
-            }
-        }
+            const existingPhone = await Voter.find({phone})
+            const existingUsername = await Voter.find({username})
+                for (let i = 0; i < existingVoter.length; i++) {
+                if(existingVoter.length && existingVoter[i].organization_id=== organization_id){
+                   
+                    res.json({
+                        status : "Failed",
+                        message : "A voter aleardy exist with this email"
+                    })
+                    return;
+                }}
+                for (let i = 0; i < existingPhone.length; i++) {
+                     if(existingPhone.length && existingPhone[i].organization_id=== organization_id){
+                        res.json({
+                            status : "Failed",
+                            message : "A voter aleardy exist with this Phone"
+                    })
+                        return;
+                }}
+                for (let i = 0; i < existingUsername.length; i++) {
+                if(existingUsername.length && existingUsername[i].organization_id=== organization_id){
+                    res.json({
+                        status : "Failed",
+                        message : "A voter aleardy exist with this Username"
+                    })
+                    return;
+                }}
+                const createdVoter = await createVoter({username,firstName,lastName,email,phone},organization_id)
+                        res.json({
+                            status:'Success',
+                            message:'Voter added',
+                            data:createdVoter,
+                })
+    }
     }catch(error){
-        throw error
+        res.json({
+            status:'Failed',
+            message:error.message
+        }) 
     }
 })
 router.post('/votersignupfromexcel',verifyToken,async(req,res)=>{
-
-    try{
-        let {organization_id} = req.user
+    let {organization_id} = req.user
         let {fileData} = req.body
         //String method that is used to remove whitespace characters from the start and end of a string
         //Validate the Data with JOI
-        for (let i=0;i<fileData.length;i++){
-            const {username,firstName,lastName,email,phone} = fileData[i]
-            if(Object.values(fileData[i]).length  < 5){
-                handleError= [...handleError , "error"]
-            }else{
+    for (let i=0;i<fileData.length;i++){
+    try{
+                const {username,firstName,lastName,email,phone} = fileData[i]
                 const existingVoter = await Voter.find({email})
-                if(existingVoter.length){
-                    handleError= [...handleError , "exist"]
-                }else{
+                const existingPhone = await Voter.find({phone})
+                const existingUsername = await Voter.find({username})
+                    if(Object.values(fileData[i]).length  < 5){
+                        throw new Error('Check your excel file a variable is missing')
+                    }
+                    for (let i = 0; i < existingVoter.length; i++) {
+                    if(existingVoter.length && existingVoter[i].organization_id=== organization_id){
+                        throw new Error('A voter aleardy exist with this email')
+                        
+                    }}
+                    for (let i = 0; i < existingPhone.length; i++) {
+                         if(existingPhone.length && existingPhone[i].organization_id=== organization_id){
+                            throw new Error('A voter aleardy exist with this Phone')
+                    }}
+                    for (let i = 0; i < existingUsername.length; i++) {
+                    if(existingUsername.length && existingUsername[i].organization_id=== organization_id){
+                        throw new Error('A voter aleardy exist with this Username')
+
+                    }}
                     await createVoter({username,firstName,lastName,email,phone},organization_id)
-                    handleError= [...handleError , "created"]
-                }
-            }
-        }
-        handleError.map((error)=>{
-            console.log(error)
-            if (error === "exist"){
-                res.write("a voter aleardy exist/")
-            }else if(error === "created"){
-                res.write("voter has been added/")
-            }else if(error === "error"){
-                res.write("check your excel file/")
-            }
-        })
-        res.end()
-        handleError= []
+                    throw new Error('Voter has been created')
     }catch(error){
-        throw error
+        handleerror.push(error.message + "/")
     }
+    
+}
+handleerror.map((error)=>{
+    if(error.includes('Voter has been created')){
+        res.write(error)
+    }else if(error.includes('Check your excel file a variable is missing')){
+        res.write(error)
+    }else if(error.includes('A voter aleardy exist with this email')){
+        res.write(error)
+    }else if(error.includes('A voter aleardy exist with this Phone')){
+        res.write(error)
+    }else if(error.includes('A voter aleardy exist with this Username')){
+        res.write(error)
+    }
+
+})
+res.end()
+handleerror = []
 })
 
 router.post('/votersignin',async (req,res)=>{
@@ -87,7 +125,7 @@ router.post('/votersignin',async (req,res)=>{
         //!Validate the Data
         const {error} = voterLoginValidation(req.body)
         if(error){
-        res.status(400).send({message:error['details'][0]['message']})
+        res.send({status:"Failed",message:error['details'][0]['message']})
         }
         else{
             const authenticatedVoter = await authenticateVoter({email,password})
@@ -96,13 +134,13 @@ router.post('/votersignin',async (req,res)=>{
                 
                 res.json({
                     status:'Success',
-                    message:'Signin Successful ',
+                    message:'Signin successful ',
                     data: authenticatedVoter
                 })   
             }else{
                     res.json({
                     status:'Failed',
-                    message:'Enter Valid credentials ',
+                    message:'Enter valid credentials ',
                 }) 
             }
             
@@ -117,49 +155,31 @@ router.post('/votersignin',async (req,res)=>{
    
 })
 
-
-router.get('/voterlist',(req,res)=>{
-    
-    Voter.find((err,data)=>{
-             if(err){
-                console.log(err)
-             }else{
-                 if(data.length){
-                    res.json({
-                        data: data,
-                    })
-                 }else{
-                    res.json({
-                        data: "no data",
-                    })
-                 }
-             }
-    })
-})
-
-
-router.post('/exportdata',verifyToken,(req,res)=>{
-    var wb = XLSX.utils.book_new() //new workbook
-    Voter.find((err,data)=>{
-        if(err){
-            console.log(err)
+router.get('/voterlist',verifyToken,async(req,res)=>{
+    let {organization_id} = req.user
+    Voter.find(({organization_id:organization_id}),(error,data)=>{
+        if(error){
+            console.log(error)
         }else{
-            var temp = JSON.stringify(data)
-            temp = JSON.parse(temp)
-            var ws = XLSX.utils.json_to_sheet(temp)
-            var down = __dirname+'/public/exportdata.xlsx'
-            XLSX.utils.book_append_sheet(wb,ws,"sheet1")
-            XLSX.writeFile(wb,down)
-            res.download(down)
+            if(data.length){
+                res.json({
+                    data: data,
+                })
+             }else{
+                res.json({
+                    data: "no data",
+                })
+             }
         }
     })
+    
 })
 
 router.get('/voter/:voterid',(req,res)=>{
     const {voterid} = req.params
-    Voter.findById(({_id:voterid}),(err,data)=>{
-        if(err){
-            console.log(err)
+    Voter.findById(({_id:voterid}),(error,data)=>{
+        if(error){
+            console.log(error)
         }else{
             res.json({
                 data : data
@@ -167,6 +187,7 @@ router.get('/voter/:voterid',(req,res)=>{
         }
     })
 })
+
 router.put('/updatevoter/:voterid',async(req,res)=>{
             try{
             const {voterid} = req.params
@@ -186,22 +207,22 @@ router.put('/updatevoter/:voterid',async(req,res)=>{
             }
             
          
-            }catch(err) {
-                throw (err)
+            }catch(error) {
+                res.json({
+                    status:'Failed',
+                    message:error.message
+                }) 
         
             }
            
 })
 router.delete('/deletevoter',async(req,res)=>{
-            const {id} = req.body
-            id.map((voter)=>{
-                Voter.findOneAndDelete({voter},(err)=>{
-                    if(err){
-                       console.log(err)
-                    }else{
+            const data = req.body
+        
+            data.map((voter)=>{
+                Voter.deleteOne({_id:voter} ,()=>{
                         handleDelete= [...handleDelete , "deleted"]
-                    }
-                 })  
+                    })  
             })
             handleDelete.map((error)=>{
                 res.write("Voter has been deleted/")  

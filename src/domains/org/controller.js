@@ -6,7 +6,7 @@ const jwt= require('jsonwebtoken')
 
 const createOrganization = async (data)=>{
     try{
-        const {orgName,orgDescription,email,password} = data
+        const {orgName,orgDescription,email,phone,password} = data
         const existingOrganization = await Org.find({email}) 
         if(existingOrganization.length){
             //A user aleady exist
@@ -15,17 +15,16 @@ const createOrganization = async (data)=>{
         //User doesn't exist so we can save him as a new user
         //Hashing Password 
         const hashedPassword = await hashData(password)
-        
         const newOrganization= new Org({
             orgName,
             orgDescription,
             email,
+            phone,
             password:hashedPassword,
             verified:false,
             role:Role.Organization
-
         })  
-        const token = jwt.sign({ organization_id: newOrganization._id ,email,role: newOrganization.role }, process.env.TOKEN_SECRET,{expiresIn: "2h",}); 
+        const token = jwt.sign({ organization_id: newOrganization._id ,email,role: newOrganization.role }, process.env.TOKEN_SECRET,{expiresIn: "1y",}); 
         newOrganization.token = token
         //Save the organization
         const createdOrganization = await newOrganization.save()
@@ -52,11 +51,9 @@ const authenticateOrg = async (email,password)=>{
                 const passwordMatch = await verifyHashedData(password,hashedPassword)
                 if(passwordMatch === hashedPassword ){
                     //password match
-                    const token = jwt.sign({ organization_id: fetchedOrgs._id ,email,role: fetchedOrgs.role }, process.env.TOKEN_SECRET,{expiresIn: "2h",}); 
+                    const token = jwt.sign({ organization_id: fetchedOrgs._id ,email,role: fetchedOrgs.role }, process.env.TOKEN_SECRET,{expiresIn: "1y",}); 
                     fetchedOrgs.token =token
                     return fetchedOrgs
-                    
-         
                 }else{
                     throw Error("Incorrect credentials match") 
                 }

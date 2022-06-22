@@ -1,7 +1,6 @@
 const mongoose= require('mongoose')
 const Schema = mongoose.Schema
 const VotePartySchema=new Schema({
- 
     mainQuestion:{
         type:String,
         require:true,
@@ -20,32 +19,22 @@ const VotePartySchema=new Schema({
         min:6,
         max:256
     },
-    ballotType:{
-        type:String,
-        require:true,
-        min:6,
-        max:1024
-    },
+   
     date:{
         type:Date,
         default:Date.now
     },
-    showResult:{
-        type:Boolean,
-        default:false
+    
+    option1: {
+        type :String
     },
-    options: {
-        type :Array
+    option2: {
+        type :String
     },
     organization_id:{
         type :String
     },
-    voted_voters: {
-        type :Array
-    }, 
-    option_count:{
-        type:Array
-    },
+    
     room_id:{
         type:String
     },

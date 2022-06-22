@@ -9,11 +9,7 @@ const createVoteRoom = async ({roomName,roomDescription,voters},organization_id)
         roomDescription = roomDescription.trim()
         //!Saving the vote-room
         //?Password hashing
-        //const hashedMainQuestion = await hashData(mainQuestion)
-        //const hashedOrganizationName = await hashData(organizationName)
-        //const hashedStartDate = await hashData(startDate)
-        //const hashedEndDate = await hashData(endDate)
-        //const hashedballotType = await hashData(ballotType)
+        
         const newVoteRoom= new VoteRoom({
             roomDescription,
             roomName,
@@ -26,25 +22,4 @@ const createVoteRoom = async ({roomName,roomDescription,voters},organization_id)
         throw error
     }
 }
-const sendVoteEmail = async ({email,_id},id)=>{
-    try{
-        const existingVoteRoom = VoteRoom.findOne({id})
-        if(existingVoteRoom){
-            const currentUrl= "http://localhost:5000/"
-            const hashedVoteroomId= await hashData(id)
-            const hashedVoterId= await hashData(_id)
-            const mailOptions={
-                from : process.env.AUTH_EMAIL,
-                to: email,
-                subject:"Vote Room",
-                html:`<p>Click here to go to the vote room </p><p>Press <a href=${ currentUrl +"voteroom/voter/" + hashedVoteroomId + "/" + hashedVoterId}>HERE</a>to procced</p>`
-            }
-            await sendEmail(mailOptions)
-        }else{
-            throw Error("no vote room with that id exist")
-        }
-    }catch(error){
-        console.log(error)
-    }
-}
-module.exports = {createVoteRoom,sendVoteEmail}
+module.exports = {createVoteRoom}
